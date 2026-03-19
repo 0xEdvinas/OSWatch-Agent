@@ -3,12 +3,6 @@ import winreg
 import os
 import models.process as process
 
-class AutostartsCollector:  
-    
-import winreg
-import process
-
-
 class AutostartsCollector:
     def get_registry_autostarts(self) -> list[process.Process]:
         path = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -68,7 +62,7 @@ class AutostartsCollector:
     
 
 
-    
+
     def get_startupfolder_autostarts(self):
         startup_folder = os.path.expandvars(r"%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup")
 
