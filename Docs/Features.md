@@ -1,4 +1,4 @@
-# Planned features
+## Planned features
 
 - Running process list
   - Keep up to date list of running processes
@@ -19,9 +19,8 @@
   - Show ram, cpu usage system-wide
     - System resource usage anomalies
   - Disk usage? Get all disks?
-    - Show largest files?
 - QT6 GUI/systemtray controls
 - Heartbeat - periodically send a check-in so we can have last seen
 - Machine risk score?
 
-# Added features
+## Added features
