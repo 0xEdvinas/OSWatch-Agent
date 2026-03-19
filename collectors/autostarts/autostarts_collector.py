@@ -1,33 +1,73 @@
 import subprocess
 import winreg
 import os
+import models.process as process
+
+class AutostartsCollector:  
+    
+import winreg
+import process
+
 
 class AutostartsCollector:
-    def __init__(self):
-        pass
+    def get_registry_autostarts(self) -> list[process.Process]:
+        path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, path)
+
+        i = 0
+        autostarts: list[process.Process] = []
+
+        while True:
+            try:
+                # returns: name, value, type
+                name, path_value, _ = winreg.EnumValue(key, i)
+                autostarts.append(process.Process(name, path_value))
+                i += 1
+            except OSError:
+                break
+
+        return autostarts
+
+    def get_registry_autostart_statuses(self) -> dict[str, str]:
+        path = r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, path)
+
+        i = 0
+        statuses: dict[str, str] = {}
+
+        while True:
+            try:
+                name, value, _ = winreg.EnumValue(key, i)
+
+                # value is bytes because this key uses REG_BINARY
+                first_byte = value[0] if value else None
+
+                if first_byte == 2:
+                    status = "enabled"
+                elif first_byte == 3:
+                    status = "disabled"
+                else:
+                    status = "unknown"
+
+                statuses[name] = status
+                i += 1
+            except OSError:
+                break
+
+        return statuses
+
+    def get_registry_autostarts_with_status(self) -> list[process.Process]:
+        autostarts = self.get_registry_autostarts()
+        statuses = self.get_registry_autostart_statuses()
+
+        for app in autostarts:
+            status = statuses.get(app.get_name(), "enabled")
+            app.set_startup_status(status)
+
+        return autostarts
     
-    def get_registry_autostarts(self):
-      path = r"Software\Microsoft\Windows\CurrentVersion\Run"
 
-      key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, path)
 
-      i = 0
-      autostarts = []
-
-      while True:
-          try:
-              # returns name, value, convention
-              name, value, _ = winreg.EnumValue(key, i)
-              autostarts.append({ 
-                  'name': name, 
-                  'path': value 
-                 })
-              
-              i += 1
-          except OSError:
-              break
-
-      return autostarts
     
     def get_startupfolder_autostarts(self):
         startup_folder = os.path.expandvars(r"%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup")
@@ -86,6 +126,3 @@ class AutostartsCollector:
             autostarts.append(current_service)
 
         return autostarts
-
-
-    
