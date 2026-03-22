@@ -1,4 +1,4 @@
-# SysSentinel-Agent
+# OSWatch-Agent
 
 ## Architecture
 
